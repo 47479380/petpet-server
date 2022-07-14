@@ -23,6 +23,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.4'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3"
     testImplementation "junit:junit:4.11"
+    implementation 'com.hellokaton:blade-core:2.1.2.RELEASE'
 }
 
 java {
@@ -35,6 +36,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier.set("sources")
     from sourceSets.main.allSource
 }
+
 
 artifacts {
     archives sourcesJar
@@ -53,8 +55,14 @@ publishing {
 }
 
 jar {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     manifest {
         attributes 'Main-Class': 'xmmt.dituon.server.WebServer'
+    }
+    from {
+        (configurations.runtimeClasspath).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
     }
 }
 

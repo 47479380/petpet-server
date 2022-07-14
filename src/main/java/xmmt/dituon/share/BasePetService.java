@@ -156,6 +156,7 @@ public class BasePetService {
                 InputStream inputStream = imageMaker.makeImage(key, avatarList, textList, antialias);
                 return new Pair<>(inputStream, "png");
             }
+
         } catch (Exception ex) {
             System.out.println("解析 " + key + "/data.json 出错");
             ex.printStackTrace();
