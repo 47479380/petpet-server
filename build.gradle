@@ -9,9 +9,8 @@ apply plugin: "maven-publish"
 apply plugin: "java"
 
 
-
 group = 'xmmt.dituon'
-version = '3.7-M1'
+version = '3.7'
 
 repositories {
     maven { url 'https://maven.aliyun.com/repository/public' }
@@ -30,7 +29,7 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
-mirai { jvmTarget = JavaVersion.VERSION_11}
+mirai { jvmTarget = JavaVersion.VERSION_11 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier.set("sources")
