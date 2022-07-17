@@ -41,7 +41,7 @@ java 编写，**未使用任何第三方库** ：轻量，高效。
 
 ```
 content: 
-  version: 3.7 #配置文件版本
+  version: 3.8 #配置文件版本
 
   command: pet #触发 petpet 的指令
   probability: 30 #使用 戳一戳 的触发概率
@@ -56,16 +56,123 @@ content:
   respondSelfNudge: false #响应机器人发出的戳一戳
   fuzzy: false #模糊匹配用户名
 
+  synchronized: false #消息事件同步锁
   headless: true #使用headless模式
   autoUpdate: true #自动从仓库同步PetData
+  updateIgnore: [] #更新忽略表列
   repositoryUrl: 'https://dituon.github.io/petpet' #仓库地址, 用于自动更新
 ```
+
+#### 配置项说明
+
+<details>
+
+<summary>展开/收起</summary>
+<br/>
+
+- **command**: `pet`
+
+> 触发petpet指令, 默认为`pet`
+> 
+> 例: `pet @xxx` `pet kiss @xxx`
+> 
+> 仅发送`pet`时会返回`keyList`
+<br/>
+
+- **probability**: `30`
+
+> 戳一戳 触发概率, `0-100`整数, 默认为 `30%`
+<br/>
+
+- **antialias**: `true`
+
+> 画布抗锯齿, 默认为`true`
+<br/>
+
+- **disabled**: `[]`
+
+> 禁用表列, 默认为空, 在此数组中的`key`不会被随机触发 (会覆盖`data.json`中的配置)
+<br/>
+
+- **keyCommand**: `true`
+
+> `key`作为指令头, 默认为`true`
+> 
+> 例: `kiss @xxx` `osu hso!`
+<br/>
+
+- **keyCommandHead**: `''`
+
+> `key`作为指令头时的前缀, 默认为空
+> 
+> 例 (配置项为`'#'`时): `#kiss @xxx` `osu hso!`
+<br/>
+
+- **commandMustAt**: `false`
+
+> 指令中必须有At对象, 默认为`false`
+> 
+> 例 (配置项为`true`时): `kiss @xxx`(响应) `kiss me`(不响应)
+<br/>
+
+- **respondImage**: `true`
+
+> 将发送的图片作为头像构造, 默认为`true`
+> 
+> 例 (配置项为`false`时): `kiss [图片]`(不响应) `kiss @xxx`(响应)
+<br/>
+
+- **respondSelfNudge**: `false`
+
+> 某些情况下, 机器人会主动戳其他成员, 响应机器人自己发出的戳一戳, 默认为`false`
+<br/>
+
+- **fuzzy**: `false`
+
+> 模糊匹配用户名, 默认为`false`
+> 
+> 例 (配置项为`true`时): `kiss @田所浩二`(响应) `kiss 浩二`(响应)
+<br/>
+
+- **synchronized**: `false`
+
+> 消息事件同步锁, 会锁住相同的消息事件, 默认为`false`
+> 
+> ~~人话: 多机器人对于同一条指令只有一个会响应~~
+<br/>
+
+- **headless**: `true`
+
+> 启用`hradless`模式, 默认为`true`
+> 
+> ~~人话: 有些服务器没有输入输出设备, 画图库无法正常运行, 启用这个配置项可以修复, 因为总是有人不看常见问题, 干脆默认启用了(~~
+<br/>
+
+- **autoUpdate**: `true`
+
+> 自动更新`PetData`, 每次启动时都会检查并自动下载船新pet, 默认为`true`
+> 
+> 注: 仅更新`PetData`, 不会更新插件版本, 请放心食用
+> 
+> ~~人话: 每次启动都会自动下载新的超赞梗图, 墙裂推荐~~
+<br/>
+
+- **updateIgnore**: `[]`
+
+> 忽略表列, 默认为空, 在此数组中的`key`不会被自动更新
+<br/>
+
+- **repositoryUrl**: `'https://dituon.github.io/petpet'`
+
+> 仓库地址, 用于自动更新, 默认为此仓库的`github page`
+
+</details>
 
 修改后重启 Mirai 以重新加载
 
 ## 权限管理
 
-> 群主或管理员使用 `pet on` `pet off` 以 启用/禁用 插件
+> 群主或管理员使用 `pet on` `pet off` 以 启用/禁用 戳一戳
 
 > 可在配置文件中禁用指定key, 被禁用的key不会随机触发, 但仍可以通过指令使用
 
@@ -92,6 +199,8 @@ content:
 | suck    | ![image](img/11.gif) |
 | hammer  | ![image](img/12.gif) |
 | tightly | ![image](img/13.gif) |
+
+**..more&more**
 
 </details>
 
@@ -177,22 +286,43 @@ content:
     },
     {
       "type": "TO", 
-      "pos": [[5, 8],[60,90],[50,90],[50, 0],[60, 120]],
-      "posType": "DEFORM", //图像变形 坐标格式, 默认为ZOOM
+      "pos": [[5, 8], [60, 90], [50, 90], [50, 0], [60, 120]],
+      "posType": "DEFORM", // 图像变形 坐标格式, 默认为ZOOM
       "antialias": true, // 抗锯齿, 对头像单独使用抗锯齿算法, 默认为false
       "rotate": false // 值为true时, GIF类型的头像会旋转, 默认为false
+    },
+    {
+      "type": "GROUP", 
+      "pos": [[182, 64, 40, 40], [225, 40, 40, 40], [174, 105, 40, 40]],
+      "crop": [0, 0, 50, 100], // 图片裁切坐标[x1, y1, x2, y2], 可简写为 [50, 100]
+      "cropType": "PERCENT", // 裁切格式, 默认为NONE
+      "style": [ // 风格化
+        "MIRROR",
+        "GRAY"
+      ]
     }
   ]
 ```
 
-##### 头像类型枚举
-
-**`type`**
+**头像类型枚举 `type`**
 
 - `FROM`  发送者头像
 - `TO`  接收者头像, 或构造的图片
 - `GROUP`  群头像
 - `BOT`  机器人头像
+
+**裁切格式枚举 `cropType`**
+
+- `NONE`  不裁切
+- `PIXEL`  按像素裁切
+- `PERCENT`  按百分比裁切
+
+**风格化枚举 `style`**
+
+- `MIRROR`  水平镜像
+- `FLIP`  上下翻转
+- `GRAY`  灰度化
+- `BINARIZATION`  二值化
 
 #### 文字
 

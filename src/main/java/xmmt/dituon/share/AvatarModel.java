@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JsonElement;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 public class AvatarModel {
@@ -20,17 +21,24 @@ public class AvatarModel {
     private boolean antialias = false;
     private PosType posType = PosType.ZOOM;
     private DeformData deformData = null;
+    private CropType cropType = CropType.NONE;
+    private int[] cropPos;
+    private List<Style> styleList;
 
     public AvatarModel(AvatarData data, AvatarExtraDataProvider extraData, Type imageType) {
         type = data.getType();
         setImage(type, extraData);
         posType = data.getPosType() != null ? data.getPosType() : PosType.ZOOM;
         setPos(data.getPos(), imageType);
+        cropType = data.getCropType();
+        setCrop(data.getCrop());
+        styleList = data.getStyle();
         angle = data.getAngle() != null ? data.getAngle() : 0;
         round = Boolean.TRUE.equals(data.getRound());
         rotate = Boolean.TRUE.equals(data.getRotate());
         onTop = Boolean.TRUE.equals(data.getAvatarOnTop());
         antialias = Boolean.TRUE.equals(data.getAntialias());
+        buildImage();
     }
 
     private void setImage(AvatarType type, AvatarExtraDataProvider extraData) {
@@ -76,6 +84,12 @@ public class AvatarModel {
         }
     }
 
+    private void setCrop(List<Integer> crop) {
+        if (crop == null || crop.isEmpty()) return;
+        if (crop.size() == 2) cropPos = new int[]{0, 0, crop.get(0), crop.get(1)};
+        if (crop.size() == 4) cropPos = new int[]{crop.get(0), crop.get(1), crop.get(2), crop.get(3)};
+    }
+
     private int[] JsonArrayToIntArray(JsonArray ja) {
         return new int[]{
                 Integer.parseInt(ja.get(0).toString()),
@@ -83,6 +97,35 @@ public class AvatarModel {
                 Integer.parseInt(ja.get(2).toString()),
                 Integer.parseInt(ja.get(3).toString())
         };
+    }
+
+    private void buildImage() {
+        if (cropType != CropType.NONE) image = ImageSynthesis.cropImage(image, cropType, cropPos);
+
+        for (Style style : styleList) {
+            switch (style) {
+                case FLIP:
+                    image = ImageSynthesis.flipImage(image);
+                    break;
+                case MIRROR:
+                    image = ImageSynthesis.mirrorImage(image);
+                    break;
+                case GRAY:
+                    image = ImageSynthesis.grayImage(image);
+                    break;
+                case BINARIZATION:
+                    image = ImageSynthesis.BinarizeImage(image);
+                    break;
+            }
+        }
+
+        if (round) {
+            try {
+                image = ImageSynthesis.convertCircular(image, antialias);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public boolean isRound() {
@@ -102,14 +145,6 @@ public class AvatarModel {
     }
 
     public BufferedImage getImage() {
-        assert image != null;
-        if (round) {
-            try {
-                return ImageSynthesis.convertCircular(image, antialias);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         return image;
     }
 
@@ -141,7 +176,7 @@ public class AvatarModel {
         int[] anchor = new int[2];
 
         public static DeformData fromPos(JsonArray posElements) {
-            System.out.println("DeformData fromPos by: " + posElements.toString());
+//            System.out.println("DeformData fromPos by: " + posElements.toString());
             DeformData deformData = new DeformData();
             for (short i = 0; i < POS_SIZE; i++) {
                 deformData.deformPos[i] = new Point2D.Double(
