@@ -14,5 +14,5 @@ RUN echo 'Asia/Shanghai' >/etc/timezone
 #更新下载源 安装 工具
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak && echo "deb http://mirrors.163.com/debian/ buster main non-free contrib" > /etc/apt/sources.list && echo "deb http://mirrors.163.com/debian/ buster-updates main non-free contrib" >> /etc/apt/sources.list && echo "deb http://mirrors.163.com/debian/ buster-backports main non-free contrib" >> /etc/apt/sources.list && echo "deb http://mirrors.163.com/debian-security/ buster/updates main non-free contrib" >> /etc/apt/sources.list && echo "deb-src http://mirrors.163.com/debian/ buster main non-free contrib" >> /etc/apt/sources.list && echo "deb-src http://mirrors.163.com/debian/ buster-updates main non-free contrib" >> /etc/apt/sources.list && echo "deb-src http://mirrors.163.com/debian/ buster-backports main non-free contrib" >> /etc/apt/sources.list && echo "deb-src http://mirrors.163.com/debian-security/ buster/updates main non-free contrib" >> /etc/apt/sources.list && apt-get update && apt-get install -y vim less wget; exit 0
 
-ENTRYPOINT ["java","-jar","petpet-3.7.jar"]
+ENTRYPOINT ["java","-jar","petpet-3.8.jar"]
 #RUN ["java","-jar","petpet-3.4.jar"]
