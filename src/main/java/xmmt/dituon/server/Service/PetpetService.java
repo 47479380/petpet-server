@@ -18,5 +18,9 @@ public class PetpetService extends BasePetService{
         this.readData(dir);
       log.debug("读取"+dir.getAbsolutePath());
     }
+//
+    public boolean isKey(String value){
+        return this.dataMap.containsKey(value);
+    }
 
 }
