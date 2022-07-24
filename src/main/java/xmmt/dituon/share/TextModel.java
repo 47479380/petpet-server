@@ -16,7 +16,7 @@ public class TextModel {
     protected Font font;
     protected TextAlign align;
     protected TextWrap wrap;
-    private int width;
+    private Graphics2D container = null;
 
     public TextModel(TextData textData, TextExtraData extraInfo) {
         text = extraInfo != null ? buildText(textData.getText(), extraInfo)
@@ -86,7 +86,7 @@ public class TextModel {
 
     public String getText() {
         if (wrap == TextWrap.BREAK && pos.length >= 3) {
-            int width = this.getWidth();
+            int width = this.getWidth(font);
             if (width <= pos[2]) return text;
 
             short lineAp = (short) (width / pos[2]);
@@ -105,9 +105,9 @@ public class TextModel {
     public int[] getPos() {
         switch (align) {
             case CENTER:
-                return new int[]{pos[0] - this.getWidth() / 2, pos[1]};
+                return new int[]{pos[0] - this.getWidth(this.getFont()) / 2, pos[1]};
             case RIGHT:
-                return new int[]{pos[0] - this.getWidth(), pos[1]};
+                return new int[]{pos[0] - this.getWidth(this.getFont()), pos[1]};
         }
         return pos;
     }
@@ -118,15 +118,14 @@ public class TextModel {
 
     public Font getFont() {
         if (wrap == TextWrap.ZOOM) {
-            float multiple = (float) pos[2] / this.getWidth();
-            return new Font(font.getFontName(), Font.PLAIN, (int) (font.getSize() * multiple));
+            float multiple = Math.min(1.0F, (float) pos[2] / this.getWidth(font));
+            return new Font(font.getFontName(), Font.PLAIN, Math.round(font.getSize() * multiple));
         }
         return font;
     }
 
-    public int getWidth() {
-        if (width != 0) return width;
-        Graphics2D g2d = new BufferedImage(1, 1, Image.SCALE_DEFAULT).createGraphics();
-        return width = g2d.getFontMetrics(font).stringWidth(text);
+    public int getWidth(Font f) {
+        if (container == null) container = new BufferedImage(1, 1, 1).createGraphics();
+        return container.getFontMetrics(f).stringWidth(text);
     }
 }

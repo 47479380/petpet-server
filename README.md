@@ -41,7 +41,7 @@ java 编写，**未使用任何第三方库** ：轻量，高效。
 
 ```
 content: 
-  version: 3.8 #配置文件版本
+  version: 4.0 #配置文件版本
 
   command: pet #触发 petpet 的指令
   probability: 30 #使用 戳一戳 的触发概率
@@ -54,6 +54,7 @@ content:
   commandMustAt: false #必须有At对象
   respondImage: true #使用发送的图片生成 petpet
   respondSelfNudge: false #响应机器人发出的戳一戳
+  keyListFormat: MESSAGE #keyList响应格式
   fuzzy: false #模糊匹配用户名
 
   synchronized: false #消息事件同步锁
@@ -125,6 +126,13 @@ content:
 - **respondSelfNudge**: `false`
 
 > 某些情况下, 机器人会主动戳其他成员, 响应机器人自己发出的戳一戳, 默认为`false`
+<br/>
+
+- **keyListFormat**: `MESSAGE`
+
+> 发送`pet`时 `keyList`响应格式, 默认为`MESSAGE`
+>
+> 枚举: `MESSAGE`(发送普通消息)  `FORWARD`(发送转发消息)
 <br/>
 
 - **fuzzy**: `false`
@@ -259,6 +267,8 @@ content:
   "pos": [0, 0, 200, 200]
 ```
 
+> `4.0`版本后, 坐标支持变量运算, 例如 `[100,100,"width/2","height*1.5^2"]`
+
 ###### 仿射变换/图像变形
 
 **坐标格式枚举`posType`**
@@ -293,7 +303,7 @@ content:
     },
     {
       "type": "GROUP", 
-      "pos": [[182, 64, 40, 40], [225, 40, 40, 40], [174, 105, 40, 40]],
+      "pos": [[182, 64, "width/2", "height*1.5^2"], [225, 40, "40", 40], [174, 105, 40, "height+width"]], // 支持变量运算
       "crop": [0, 0, 50, 100], // 图片裁切坐标[x1, y1, x2, y2], 可简写为 [50, 100]
       "cropType": "PERCENT", // 裁切格式, 默认为NONE
       "style": [ // 风格化
@@ -303,6 +313,8 @@ content:
     }
   ]
 ```
+
+> 在`IMG`中, 当`rotate = true`时, 头像会随机旋转角度, `angle`为最大值(`angle = 0`时, 随机范围为`0-359`)
 
 **头像类型枚举 `type`**
 
@@ -323,6 +335,11 @@ content:
 - `FLIP`  上下翻转
 - `GRAY`  灰度化
 - `BINARIZATION`  二值化
+
+**坐标变量**
+
+- `width`  原图宽度
+- `height`  原图高度
 
 #### 文字
 
@@ -376,6 +393,21 @@ content:
 >> 使用`BREAK`或`ZOOM`时, `maxWidth` 默认为`200`
 
 **需要更多变量请提交 Issue**
+
+#### `background`
+
+`4.0`版本后, 支持动态创建画布
+
+```
+"background": {
+    "size": ["avatar0Width*2","avatar0Height"] //支持变量运算
+  }
+```
+
+**坐标变量**
+
+- `avatar(i)Width`  `i`号头像(`i`为定义头像时的顺序, 从`0`开始)处理后的宽度
+- `avatar(i)Height`  `i`号头像处理后的高度
 
 ## `WebServer`
   

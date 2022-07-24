@@ -8,8 +8,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 public class AvatarModel {
+    private final Type imageType;
     protected AvatarType type;
     protected int[][] pos = {{0, 0, 100, 100}};
     protected int angle;
@@ -18,18 +20,18 @@ public class AvatarModel {
     protected boolean onTop;
     protected BufferedImage image = null;
     private int posIndex = 0;
-    private boolean antialias = false;
-    private PosType posType = PosType.ZOOM;
+    private final boolean antialias;
+    private final PosType posType;
     private DeformData deformData = null;
-    private CropType cropType = CropType.NONE;
+    private final CropType cropType;
     private int[] cropPos;
-    private List<Style> styleList;
+    private final List<Style> styleList;
 
     public AvatarModel(AvatarData data, AvatarExtraDataProvider extraData, Type imageType) {
         type = data.getType();
         setImage(type, extraData);
         posType = data.getPosType() != null ? data.getPosType() : PosType.ZOOM;
-        setPos(data.getPos(), imageType);
+        setPos(data.getPos(), this.imageType = imageType);
         cropType = data.getCropType();
         setCrop(data.getCrop());
         styleList = data.getStyle();
@@ -84,19 +86,28 @@ public class AvatarModel {
         }
     }
 
-    private void setCrop(List<Integer> crop) {
+    private void setCrop(JsonArray crop) {
         if (crop == null || crop.isEmpty()) return;
-        if (crop.size() == 2) cropPos = new int[]{0, 0, crop.get(0), crop.get(1)};
-        if (crop.size() == 4) cropPos = new int[]{crop.get(0), crop.get(1), crop.get(2), crop.get(3)};
+        int[] result = JsonArrayToIntArray(crop);
+        cropPos = result.length == 2 ? new int[]{0, 0, result[0], result[1]} : result;
     }
 
     private int[] JsonArrayToIntArray(JsonArray ja) {
-        return new int[]{
-                Integer.parseInt(ja.get(0).toString()),
-                Integer.parseInt(ja.get(1).toString()),
-                Integer.parseInt(ja.get(2).toString()),
-                Integer.parseInt(ja.get(3).toString())
-        };
+        int[] result = new int[ja.size()];
+        short i = 0;
+        for (JsonElement je : ja) {
+            String str = je.toString().replace("\"", "");
+            try {
+                result[i] = Integer.parseInt(str);
+            } catch (NumberFormatException ignored) {
+                ArithmeticParser parser = new ArithmeticParser(str);
+                parser.put("width", image.getWidth());
+                parser.put("height", image.getHeight());
+                result[i] = (int) parser.eval();
+            }
+            i++;
+        }
+        return result;
     }
 
     private void buildImage() {
@@ -149,14 +160,13 @@ public class AvatarModel {
     }
 
     public float getNextAngle() {
-        if (!rotate) {
-            return angle;
-        }
-        return ((float) (360 / pos.length) * posIndex) + angle;
+        if (!rotate) return angle; //不旋转
+        if (imageType == Type.IMG) return new Random().nextInt(angle != 0 ? angle : 360); //IMG随机旋转
+        return ((float) (360 / pos.length) * posIndex) + angle; //GIF自动旋转
     }
 
     public int[] nextPos() {
-        if (posIndex > pos.length) {
+        if (posIndex >= pos.length) {
             return new int[]{0, 0, 0, 0};
         }
         return pos[posIndex++];
@@ -199,4 +209,11 @@ public class AvatarModel {
         }
     }
 
+    public int getImageWidth() {
+        return image.getWidth();
+    }
+
+    public int getImageHeight() {
+        return image.getHeight();
+    }
 }

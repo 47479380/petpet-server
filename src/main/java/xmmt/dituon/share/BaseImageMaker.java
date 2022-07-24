@@ -6,11 +6,9 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class BaseImageMaker {
-    public InputStream makeImage(String path,
-                                 ArrayList<AvatarModel> avatarList, ArrayList<TextModel> textList,
-                                 boolean antialias) {
+    public InputStream makeImage(ArrayList<AvatarModel> avatarList, ArrayList<TextModel> textList,
+                                 BufferedImage sticker ,boolean antialias) {
         try {
-            BufferedImage sticker = ImageIO.read(new File(path + "0.png"));
             return bufferedImageToInputStream(ImageSynthesis.synthesisImage(
                     sticker, avatarList, textList, antialias, true));
         } catch (IOException e) {

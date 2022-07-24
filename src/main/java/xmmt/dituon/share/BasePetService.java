@@ -2,13 +2,13 @@ package xmmt.dituon.share;
 
 import kotlin.Pair;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 
 public class BasePetService {
@@ -17,7 +17,7 @@ public class BasePetService {
 
     protected File dataRoot;
     protected HashMap<String, KeyData> dataMap = new HashMap<>();
-    protected HashMap<String, String> aliaMap = new HashMap<>();
+    protected HashMap<String, String[]> aliaMap = new HashMap<>();
 
     protected BaseImageMaker imageMaker;
     protected BaseGifMaker gifMaker;
@@ -43,25 +43,32 @@ public class BasePetService {
             if (path.equals(FONTS_FOLDER)) {
                 // load fonts folder
                 registerFontsToAwt(new File(dir.getAbsolutePath() + File.separator + path));
-            } else {
-                // load templates folder
-                // TODO 模板应放在data/templates而不是直接data
-                File dataFile = new File(dir.getAbsolutePath() + File.separator + path + "/data.json");
-                try {
-                    KeyData data = KeyData.getData(getFileStr(dataFile));
-                    dataMap.put(path, data);
-                    keyListStringBuilder.append("\n").append(path);
-                    if (data.getAlias() != null) {
-                        keyListStringBuilder.append(" ( ");
-                        data.getAlias().forEach((aliasKey) -> {
-                            aliaMap.put(aliasKey, path);
-                            keyListStringBuilder.append(aliasKey).append(" ");
-                        });
-                        keyListStringBuilder.append(")");
-                    }
-                } catch (Exception ex) {
-                    System.out.println("无法读取 " + path + "/data.json: \n\n" + ex);
+                continue;
+            }
+            // load templates folder
+            // TODO 模板应放在data/templates而不是直接data
+            File dataFile = new File(dir.getAbsolutePath() + File.separator + path + "/data.json");
+            try {
+                KeyData data = KeyData.getData(getFileStr(dataFile));
+                dataMap.put(path, data);
+                keyListStringBuilder.append("\n").append(path);
+                if (data.getAlias() != null) {
+                    keyListStringBuilder.append(" ( ");
+                    data.getAlias().forEach((aliasKey) -> {
+                        keyListStringBuilder.append(aliasKey).append(" ");
+                        if (aliaMap.get(aliasKey)==null) {
+                            aliaMap.put(aliasKey, new String[]{path});
+                            return;
+                        }
+                        String[] oldArray = aliaMap.get(aliasKey);
+                        String[] newArray = Arrays.copyOf(oldArray, oldArray.length+1);
+                        newArray[oldArray.length] = path;
+                        aliaMap.put(aliasKey, newArray);
+                    });
+                    keyListStringBuilder.append(")");
                 }
+            } catch (Exception ex) {
+                System.out.println("无法读取 " + path + "/data.json: \n\n" + ex);
             }
         }
         keyListString = keyListStringBuilder.toString();
@@ -96,7 +103,7 @@ public class BasePetService {
         antialias = config.getAntialias();
     }
 
-    public String getFileStr(File file) throws IOException {
+    public static String getFileStr(File file) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
         StringBuilder sb = new StringBuilder();
         String str;
@@ -120,7 +127,7 @@ public class BasePetService {
             System.out.println("无效的key: “" + key + "”");
             return null;
         }
-        KeyData data = dataMap.containsKey(key) ? dataMap.get(key) : dataMap.get(aliaMap.get(key));
+        KeyData data = dataMap.containsKey(key) ? dataMap.get(key) : dataMap.get(aliaMap.get(key)[0]);
         key = dataRoot.getAbsolutePath() + File.separator +
                 (dataMap.containsKey(key) ? key : aliaMap.get(key)) + File.separator;
 
@@ -148,12 +155,30 @@ public class BasePetService {
             }
 
             if (data.getType() == Type.GIF) {
-                InputStream inputStream = gifMaker.makeAvatarGIF(key, avatarList, textList, antialias);
+                HashMap<Short, BufferedImage> stickerMap = new HashMap<>();
+                short imageNum = 0;
+                for (File file : Objects.requireNonNull(new File(key).listFiles())) {
+                    if (!file.getName().endsWith(".png")) continue;
+                    stickerMap.put(imageNum, ImageIO.read(new File(key + imageNum++ + ".png")));
+                }
+                if (data.getBackground() != null) { //从配置文件读背景
+                    BufferedImage sticker = new BackgroundModel(data.getBackground(), avatarList).getImage();
+                    for (short i = 0; i < avatarList.get(0).pos.length; i++) {
+                        stickerMap.put(i, sticker);
+                    }
+                }
+                InputStream inputStream = gifMaker.makeAvatarGIF(avatarList, textList, stickerMap, antialias);
                 return new Pair<>(inputStream, "gif");
             }
 
             if (data.getType() == Type.IMG) {
-                InputStream inputStream = imageMaker.makeImage(key, avatarList, textList, antialias);
+                File stickerFile = new File(key + "0.png");
+                BufferedImage sticker = null;
+                if (stickerFile.exists()) sticker = ImageIO.read(stickerFile);
+                if (data.getBackground() != null)
+                    sticker = new BackgroundModel(data.getBackground(), avatarList).getImage();
+                assert sticker != null;
+                InputStream inputStream = imageMaker.makeImage(avatarList, textList, sticker, antialias);
                 return new Pair<>(inputStream, "png");
             }
 
@@ -168,7 +193,7 @@ public class BasePetService {
         return dataMap;
     }
 
-    public HashMap<String, String> getAliaMap() {
+    public HashMap<String, String[]> getAliaMap() {
         return aliaMap;
     }
 }
