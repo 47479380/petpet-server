@@ -4,26 +4,23 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
-public class ImageSynthesisCore {
-    protected static void drawAvatar(Graphics2D g2d, AvatarModel avatar) {
-        switch (avatar.getPosType()) {
-            case ZOOM:
-                g2dDrawZoomAvatar(g2d, avatar.getImage(),
-                        avatar.nextPos(), avatar.getNextAngle(), avatar.isRound());
-                break;
-            case DEFORM:
-                g2dDrawDeformAvatar(g2d, avatar.getImage(), avatar.getDeformData());
-        }
-    }
+public abstract class ImageSynthesisCore {
 
+    /**
+     * 在Graphics2D画布上 绘制缩放头像
+     * @param g2d Graphics2D 画布
+     * @param avatarImage 处理后的头像
+     * @param pos 处理后的坐标 (int[4]{x, y, w, h})
+     * @param angle 旋转角, 对特殊角度有特殊处理分支
+     * @param isRound 裁切为圆形
+     */
     protected static void g2dDrawZoomAvatar(Graphics2D g2d, BufferedImage avatarImage, int[] pos,
-                                          float angle, boolean isRound) {
+                                            float angle, boolean isRound) {
         if (avatarImage == null) {
             return;
         }
@@ -50,24 +47,41 @@ public class ImageSynthesisCore {
         g2d.drawImage(rotateImage(avatarImage, angle), x, y, w, h, null);
     }
 
-    protected static void g2dDrawDeformAvatar(Graphics2D g2d, BufferedImage avatarImage, AvatarModel.DeformData deformData) {
-        BufferedImage result = ImageDeformer.computeImage(avatarImage, deformData.getDeformPos());
-        g2d.drawImage(result, deformData.getAnchor()[0], deformData.getAnchor()[1], null);
+    /**
+     * 在Graphics2D画布上 绘制变形头像
+     * @param g2d Graphics2D 画布
+     * @param avatarImage 处理后的头像
+     * @param DeformPos 头像四角坐标 (Point2D[4]{左上角, 左下角, 右下角, 右上角})
+     * @param anchorPos 锚点坐标
+     */
+    protected static void g2dDrawDeformAvatar(Graphics2D g2d, BufferedImage avatarImage,
+                                              Point2D[] DeformPos, int[] anchorPos) {
+        BufferedImage result = ImageDeformer.computeImage(avatarImage, DeformPos);
+        g2d.drawImage(result, anchorPos[0], anchorPos[1], null);
     }
 
-    protected static void g2dDrawTexts(Graphics2D g2d, ArrayList<TextModel> texts) {
+    /**
+     * 在Graphics2D画布上 绘制文字
+     * @param g2d Graphics2D 画布
+     * @param text 文本数据
+     * @param pos 坐标 (int[2]{x, y})
+     * @param color 颜色
+     * @param font 字体
+     */
+    protected static void g2dDrawText(Graphics2D g2d, String text, int[] pos, Color color, Font font) {
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        if (texts == null || texts.isEmpty()) {
-            return;
-        }
-        for (TextModel text : texts) {
-            g2d.setColor(text.getColor());
-            g2d.setFont(text.getFont());
-            g2d.drawString(text.getText(), text.getPos()[0], text.getPos()[1]);
-        }
+            g2d.setColor(color);
+            g2d.setFont(font);
+            g2d.drawString(text, pos[0], pos[1]);
     }
 
-    public static BufferedImage convertCircular(BufferedImage input, boolean antialias) throws IOException {
+    /**
+     * 将图像裁切为圆形
+     * @param input 输入图像
+     * @param antialias 抗锯齿
+     * @return 裁切后的图像
+     */
+    public static BufferedImage convertCircular(BufferedImage input, boolean antialias) {
         BufferedImage output = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         Ellipse2D.Double shape = new Ellipse2D.Double(0, 0, input.getWidth(), input.getHeight());
         Graphics2D g2 = output.createGraphics();
@@ -82,6 +96,12 @@ public class ImageSynthesisCore {
         return output;
     }
 
+    /**
+     * 完整旋转图像 (旋转时缩放以保持图像完整性)
+     * @param avatarImage 输入图像
+     * @param angle 旋转角度
+     * @return 旋转后的图像
+     */
     public static BufferedImage rotateImage(BufferedImage avatarImage, float angle) {
         double sin = Math.abs(Math.sin(Math.toRadians(angle))),
                 cos = Math.abs(Math.cos(Math.toRadians(angle)));
@@ -103,7 +123,11 @@ public class ImageSynthesisCore {
         return rotated;
     }
 
-    public static BufferedImage getAvatarImage(String avatarUrl) {
+    /**
+     * 从URL获取网络图像
+     * @param avatarUrl 图像URL
+     */
+    public static BufferedImage getWebImage(String avatarUrl) {
         HttpURLConnection conn = null;
         BufferedImage image = null;
         try {
@@ -122,32 +146,49 @@ public class ImageSynthesisCore {
         return image;
     }
 
-    public static BufferedImage cropImage(BufferedImage image, CropType type, int[] cropPos) {
+    /**
+     * 裁切图像
+     * @param image 输入图像
+     * @param cropPos 裁切坐标 (int[4]{x1, y1, x2, y2})
+     * @return 裁切后的图像
+     */
+    public static BufferedImage cropImage(BufferedImage image, int[] cropPos){
+        return cropImage(image, cropPos, false);
+    }
+
+    /**
+     * 裁切图像
+     * @param image 输入图像
+     * @param cropPos 裁切坐标 (int[4]{x1, y1, x2, y2})
+     * @param isPercent 按照百分比处理坐标
+     * @return 裁切后的图像
+     */
+    public static BufferedImage cropImage(BufferedImage image, int[] cropPos, boolean isPercent) {
         int width = cropPos[2] - cropPos[0];
         int height = cropPos[3] - cropPos[1];
-        if (type == CropType.PERCENT) {
+        if (isPercent) {
             width = (int) ((float) width / 100 * image.getWidth());
             height = (int) ((float) height / 100 * image.getHeight());
         }
         BufferedImage croppedImage = new BufferedImage(width, height, image.getType());
         Graphics2D g2d = croppedImage.createGraphics();
-        switch (type) {
-            case PIXEL:
-                g2d.drawImage(image, 0, 0, width, height
-                        , cropPos[0], cropPos[1], cropPos[2], cropPos[3], null);
-                break;
-            case PERCENT:
-                g2d.drawImage(image, 0, 0, width, height,
-                        (int) ((float) cropPos[0] / 100 * image.getWidth()),
-                        (int) ((float) cropPos[1] / 100 * image.getHeight()),
-                        (int) ((float) cropPos[2] / 100 * image.getWidth()),
-                        (int) ((float) cropPos[3] / 100 * image.getHeight()), null);
-                break;
+        if (isPercent) { //百分比
+            g2d.drawImage(image, 0, 0, width, height,
+                    (int) ((float) cropPos[0] / 100 * image.getWidth()),
+                    (int) ((float) cropPos[1] / 100 * image.getHeight()),
+                    (int) ((float) cropPos[2] / 100 * image.getWidth()),
+                    (int) ((float) cropPos[3] / 100 * image.getHeight()), null);
+        } else { //像素
+            g2d.drawImage(image, 0, 0, width, height
+                    , cropPos[0], cropPos[1], cropPos[2], cropPos[3], null);
         }
         g2d.dispose();
         return croppedImage;
     }
 
+    /**
+     * 镜像翻转图像
+     */
     public static BufferedImage mirrorImage(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -160,6 +201,9 @@ public class ImageSynthesisCore {
         return mirroredImage;
     }
 
+    /**
+     * 竖直翻转图像
+     */
     public static BufferedImage flipImage(BufferedImage image) {
         BufferedImage flipped = new BufferedImage(image.getWidth(), image.getHeight(),
                 image.getType());
@@ -174,6 +218,9 @@ public class ImageSynthesisCore {
         return flipped;
     }
 
+    /**
+     * 图像灰度化
+     */
     public static BufferedImage grayImage(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -189,6 +236,9 @@ public class ImageSynthesisCore {
         return grayscaleImage;
     }
 
+    /**
+     * 图像二值化
+     */
     public static BufferedImage BinarizeImage(BufferedImage image) {
         int h = image.getHeight();
         int w = image.getWidth();

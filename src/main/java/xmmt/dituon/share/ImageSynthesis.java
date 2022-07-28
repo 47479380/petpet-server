@@ -5,7 +5,28 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-public class ImageSynthesis extends ImageSynthesisCore{
+public class ImageSynthesis extends ImageSynthesisCore {
+    protected static void drawAvatar(Graphics2D g2d, AvatarModel avatar) {
+        switch (avatar.getPosType()) {
+            case ZOOM:
+                g2dDrawZoomAvatar(g2d, avatar.getImage(),
+                        avatar.nextPos(), avatar.getNextAngle(), avatar.isRound());
+                break;
+            case DEFORM:
+                AvatarModel.DeformData deformData = avatar.getDeformData();
+                g2dDrawDeformAvatar(g2d, avatar.getImage(), deformData.getDeformPos(), deformData.getAnchor());
+                break;
+        }
+    }
+
+    protected static void g2dDrawTexts(Graphics2D g2d, ArrayList<TextModel> texts) {
+        if (texts == null || texts.isEmpty()) {
+            return;
+        }
+        for (TextModel text : texts) {
+            ImageSynthesisCore.g2dDrawText(g2d, text.getText(), text.getPos(), text.getColor(), text.getFont());
+        }
+    }
 
     public static BufferedImage synthesisImage(BufferedImage sticker,
                                                ArrayList<AvatarModel> avatarList, ArrayList<TextModel> textList,
@@ -57,5 +78,9 @@ public class ImageSynthesis extends ImageSynthesisCore{
         g2dDrawTexts(g2d, textList);
         g2d.dispose();
         return output;
+    }
+
+    public static BufferedImage cropImage(BufferedImage image, CropType type, int[] cropPos) {
+        return ImageSynthesisCore.cropImage(image, cropPos, type == CropType.PERCENT);
     }
 }
