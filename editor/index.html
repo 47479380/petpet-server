@@ -193,11 +193,15 @@
     <div class="check" onclick="addText()">addText</div>
     <div class="check" title="多别名用空格分割">别名<input type="text" id="alias" onkeydown="this.onkeyup()"
                                 onkeyup="this.size=(this.value.length>4?this.value.length*1.5:2)" size="2"/></div>
-    <div class="check" onclick="buildData()">buildData</div>
+    <div class="check" onclick="showBuildData()">buildData</div>
+    <div class="check " id="buildImage">buildImage</div>
 </div>
 <div class="bar" id="elementBar"></div>
 <div id="gifBar"></div>
-<textarea></textarea>
+<div class="result">
+    <textarea></textarea>
+</div>
+
 <div class="check" id="downloadConfig">downloadConfig</div>
 <!--<div id="setup_icon">⚙</div>-->
 <a href="https://github.com/Dituon/petpet">♥ 项目地址 ♥</a>

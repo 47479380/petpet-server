@@ -8,7 +8,8 @@ const parameterMap={
 }
 let backGroundImageData;
 function parseTextarea(){
-    return JSON.parse(document.querySelector("textarea").value)
+    console.log(buildData())
+    return JSON.parse(buildData())
 }
 function getFrames(){
    const img_frame=document.querySelectorAll(".frame")
@@ -34,42 +35,46 @@ function base64ToBlob(urlData) {
         type: mime
     });
 }
-function onBackGroundDrop(){
-    const box = document.getElementById('drop_area');
-    box.addEventListener("drop", e => {
-        const fileList = e.dataTransfer.files;
-        if (fileList.length === 0) {
-            return false;
-        }
-        if (fileList[0].type.indexOf('image') === -1) {
-            return false;
-        }
-        if (fileList[0].type === 'image/gif') {
-            return false;
-        }
-        const reader=new FileReader()
-        reader.readAsArrayBuffer(fileList[0]);
+const box = document.getElementById('drop_area');
+const file = document.getElementById('file');
+//绑定文件上传事件,获取背景图片
+file.addEventListener("change",function (){
+       onBackGroundDrop(this.files)
+})
+box.addEventListener("drop", e => {
+    const fileList = e.dataTransfer.files;
+    onBackGroundDrop(fileList)
+});
+function onBackGroundDrop(fileList){
+    if (fileList.length === 0) {
+        return false;
+    }
+    if (fileList[0].type.indexOf('image') === -1) {
+        return false;
+    }
+    if (fileList[0].type === 'image/gif') {
+        return false;
+    }
+    const reader=new FileReader()
+    reader.readAsArrayBuffer(fileList[0]);
+    reader.onload = () => {
 
-        reader.onload = () => {
-
-            backGroundImageData =  reader.result
-        }
-        // loadImage(fileList)
-    });
+        backGroundImageData =  reader.result
+    }
 }
-onBackGroundDrop()
 
 function toImage(arrayBuffer) {
     const img=new Image()
     img.src=URL.createObjectURL( new Blob([arrayBuffer]))
     img.onload=()=>{
-        document.body.appendChild(img)
+
+        $(".result").html(img)
     }
-    console.log(img)
+
 }
 
-const build_data=document.querySelector("[onclick='buildData()']")
-build_data.addEventListener("click",async   (evt) =>{
+const buildImage=document.getElementById("buildImage")
+buildImage.addEventListener("click",async   (evt) =>{
         const upper_canvas=document.querySelector(".upper-canvas")
         const data = parseTextarea();
         const formData= new FormData()
@@ -100,6 +105,9 @@ build_data.addEventListener("click",async   (evt) =>{
 
 
     })
+
+
+
 
 
 

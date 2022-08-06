@@ -1,0 +1,32 @@
+
+POST http://localhost:2333/petpet/generate/post
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="toAvatar"; filename="toAvatar.jpg"
+
+< ./abc.jpg
+--WebAppBoundary--
+Content-Disposition: form-data; name="key"
+
+petpet
+--WebAppBoundary--
+###
+
+
+POST http://localhost:2333/petpet/generate/qq
+Content-Type: application/x-www-form-urlencoded
+
+
+key=suck&fromAvatar=2752181597&toAvatar=987415250
+
+<>  petpet.gif
+###
+POST http://localhost:2333/petpet/generate/url
+Content-Type: application/x-www-form-urlencoded
+
+
+key=petpet&fromAvatar=https%3A%2F%2Fq1.qlogo.cn%2Fg%3Fb%3Dqq%26s%3D100%26nk%3D2752181597&toAvatar=https%3A%2F%2Fq1.qlogo.cn%2Fg%3Fb%3Dqq%26s%3D100%26nk%3D2752181597
+
+<>  petpet.gif
+

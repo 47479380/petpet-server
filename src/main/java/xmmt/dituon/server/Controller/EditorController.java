@@ -13,10 +13,7 @@ import xmmt.dituon.server.Exception.PetpetException;
 import xmmt.dituon.server.Service.EditorService;
 import xmmt.dituon.server.Service.PetpetService;
 import xmmt.dituon.server.Utils.ImageUtils;
-import xmmt.dituon.share.AvatarData;
-import xmmt.dituon.share.AvatarExtraDataProvider;
-import xmmt.dituon.share.KeyData;
-import xmmt.dituon.share.TextExtraData;
+import xmmt.dituon.share.*;
 
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -40,7 +37,7 @@ public class EditorController extends BaseController {
         try {
             KeyData keyData = KeyData.Companion.getData(data.get());
             TextExtraData textExtraData = this.getTextExtraData(request);
-            AvatarExtraDataProvider avatarExtraDataProvider =this.createAvatarExtraData(keyData.getAvatar());
+            GifAvatarExtraDataProvider avatarExtraDataProvider =this.createGifAvatarExtraDataProvider(keyData.getAvatar());
             HashMap<Short, BufferedImage> stickerMap=this.getImageFiles(request);
             Pair<InputStream, String> pair = editorService.generateImage(keyData,stickerMap, avatarExtraDataProvider, textExtraData, null);
 
@@ -76,22 +73,25 @@ public class EditorController extends BaseController {
         }
         return stickerMap;
     }
-    protected AvatarExtraDataProvider createAvatarExtraData(List<AvatarData> avatarData) {
+    protected GifAvatarExtraDataProvider createGifAvatarExtraDataProvider(List<AvatarData> avatarData) {
         Map<String, BufferedImage> avatarMap = new HashMap<>();
         for (AvatarData avatarDatum : avatarData) {
             BufferedImage defaultAvatar = ImageUtils.getDefaultAvatar(parameterMap.get(avatarDatum.getType().name()));
             avatarMap.put(avatarDatum.getType().name(),defaultAvatar);
         }
-        return  new AvatarExtraDataProvider(
+        return  new GifAvatarExtraDataProvider(
                newCall(avatarMap.get("FROM")),
                 newCall(avatarMap.get("TO")),
                 newCall(avatarMap.get("GROUP")),
                 newCall(avatarMap.get("BOT"))
         );
     }
-    protected static Function0<? extends BufferedImage> newCall(BufferedImage bufferedImage){
+    //    创建GifAvatarExtraDataProvider的参数表达式
+    protected static Function0<? extends List<BufferedImage>> newCall(BufferedImage bufferedImage){
         return () -> {
-         return bufferedImage;
+            ArrayList<BufferedImage> arrayList = new ArrayList<>();
+            arrayList.add(bufferedImage);
+            return arrayList;
         };
     }
 

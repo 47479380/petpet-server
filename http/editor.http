@@ -1,0 +1,76 @@
+POST http://localhost:2333/editor/generate
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="data"
+
+{
+    "type": "IMG",
+    "avatar": [{
+        "type": "TO",
+        "pos": [106,72,305,235],
+        "round": false,
+        "avatarOnTop": false
+    }],
+    "text": [{
+        "text": "阿尼亚喜欢$txt1[这个]",
+        "pos": [120,480],
+        "color": "#ffffff",
+        "size": 40
+    }],
+    "alias": ["阿尼亚","喜欢"]
+}
+--WebAppBoundary--
+
+###
+POST http://localhost:2333/editor/generate
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="data"
+
+{
+  "type": "GIF",
+  "avatar": [
+    {
+      "type": "TO",
+      "pos": [
+        [14, 20, 98, 98], [12, 33, 101, 85], [8, 40, 110, 76], [10, 33, 102, 84], [12, 20, 98, 98]
+      ],
+      "round": true,
+      "avatarOnTop": false
+    }
+  ],
+  "text": [],
+  "alias": ["摸","摸头"]
+}
+
+
+--WebAppBoundary--
+Content-Disposition: form-data; name="f0"; filename="back.png"
+
+< ./petpet/0.png
+
+--WebAppBoundary--
+Content-Disposition: form-data; name="f1"; filename="files"
+
+< ./petpet/1.png
+
+--WebAppBoundary--
+Content-Disposition: form-data; name="f2"; filename="files"
+
+< ./petpet/2.png
+
+--WebAppBoundary--
+Content-Disposition: form-data; name="f3"; filename="files"
+
+< ./petpet/3.png
+
+--WebAppBoundary--
+Content-Disposition: form-data; name="f4"; filename="files"
+
+< ./petpet/4.png
+
+--WebAppBoundary--
+
+###

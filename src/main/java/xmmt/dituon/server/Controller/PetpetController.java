@@ -69,7 +69,7 @@ public class PetpetController extends BaseController {
             return;
         }
         try {
-            AvatarExtraDataProvider avatarExtraDataFromUrls = this.getAvatarExtraDataFromQQ(request,keyData);
+            GifAvatarExtraDataProvider avatarExtraDataFromUrls = this.getAvatarExtraDataFromQQ(request,keyData);
             TextExtraData textExtraData =this.getTextExtraData(request);
 
             Pair<InputStream, String> pair = petpetService.generateImage(key, avatarExtraDataFromUrls, textExtraData, null);
@@ -97,7 +97,7 @@ public class PetpetController extends BaseController {
         }
 
            try {
-            AvatarExtraDataProvider avatarExtraDataFromUrls = this.getAvatarExtraDataFromUrls(request,keyData);
+            GifAvatarExtraDataProvider avatarExtraDataFromUrls = this.getAvatarExtraDataFromUrls(request,keyData);
 
             TextExtraData textExtraData = this.getTextExtraData(request);
 
@@ -126,7 +126,7 @@ public class PetpetController extends BaseController {
         }
         try {
             TextExtraData textExtraData = this.getTextExtraData(request);
-            AvatarExtraDataProvider avatarExtraDataProvider =this.getAvatarExtraDataFromFile(request,keyData);
+            GifAvatarExtraDataProvider avatarExtraDataProvider =this.getAvatarExtraDataFromFile(request,keyData);
             Pair<InputStream, String> pair = petpetService.generateImage(key, avatarExtraDataProvider, textExtraData, null);
 
             if (null == pair) {
@@ -139,11 +139,11 @@ public class PetpetController extends BaseController {
         }
     }
 
-    protected AvatarExtraDataProvider getAvatarExtraDataFromUrls(Request request, KeyData keyData) {
+    protected GifAvatarExtraDataProvider getAvatarExtraDataFromUrls(Request request, KeyData keyData) {
 
         Map<String, Optional<String>> avatarMap = getAvatarParameter(request);
         this.checkAvatarParameter(keyData, avatarMap);
-       return BaseConfigFactory.getAvatarExtraDataFromUrls(
+       return BaseConfigFactory.getGifAvatarExtraDataFromUrls(
                 avatarMap.get("FROM").orElse("")
                 , avatarMap.get("TO").orElse(""),
                 avatarMap.get("GROUP").orElse("")
@@ -151,11 +151,11 @@ public class PetpetController extends BaseController {
         );
     }
 
-    protected AvatarExtraDataProvider getAvatarExtraDataFromQQ(Request request, KeyData keyData) {
+    protected GifAvatarExtraDataProvider getAvatarExtraDataFromQQ(Request request, KeyData keyData) {
 
         Map<String, Optional<String>> avatarMap = getAvatarParameter(request);
         this.checkAvatarParameter(keyData, avatarMap);
-        return BaseConfigFactory.getAvatarExtraDataFromUrls(
+        return BaseConfigFactory.getGifAvatarExtraDataFromUrls(
                 QQ_URL + avatarMap.get("FROM").orElse("")
                 , QQ_URL + avatarMap.get("TO").orElse(""),
                 QQ_URL + avatarMap.get("GROUP").orElse("")

@@ -26,10 +26,23 @@ public class EditorService {
     }
 
     public Pair<InputStream, String> generateImage(KeyData keyData,HashMap<Short, BufferedImage> stickerMap,
-                                                   AvatarExtraDataProvider avatarExtraDataProvider,
+                                                   GifAvatarExtraDataProvider avatarExtraDataProvider,
                                                    TextExtraData textExtraData,
                                                    List<TextData> additionTextDatas) {
-     return petpetService.generateImage(keyData,stickerMap,avatarExtraDataProvider,textExtraData,additionTextDatas);
+        Pair<InputStream,String> pair=null;
 
+        if (null==keyData){
+            return null;
+        }
+        if (null==stickerMap||stickerMap.isEmpty()){
+            return null;
+        }
+
+        if (keyData.getType()==Type.GIF){
+            pair=petpetService.generateGIF(keyData,stickerMap,avatarExtraDataProvider,textExtraData,additionTextDatas);
+        }else {
+            pair= petpetService.generateImage(keyData,stickerMap,avatarExtraDataProvider,textExtraData,additionTextDatas);
+        }
+        return pair;
     }
 }

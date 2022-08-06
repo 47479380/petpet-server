@@ -10,8 +10,11 @@ import xmmt.dituon.share.*;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Bean
 public class PetpetService extends BasePetService {
@@ -29,15 +32,14 @@ public class PetpetService extends BasePetService {
     }
 
 
+    /**
+       根据自定义keyData生成petpet png图片
+     */
     public Pair<InputStream, String> generateImage(KeyData data,HashMap<Short, BufferedImage> stickerMap,
-                                                   AvatarExtraDataProvider avatarExtraDataProvider,
+                                                   GifAvatarExtraDataProvider gifAvatarExtraDataProvider,
                                                    TextExtraData textExtraData,
                                                    List<TextData> additionTextDatas) {
 
-        Assert.notNull(data,"keyData不能为空");
-       if (null==stickerMap||stickerMap.isEmpty()){
-           throw new IllegalArgumentException("背景图片不能为空");
-       }
         try {
             ArrayList<TextModel> textList = new ArrayList<>();
             // add from KeyData
@@ -57,36 +59,69 @@ public class PetpetService extends BasePetService {
 
             if (!data.getAvatar().isEmpty()) {
                 for (AvatarData avatarData : data.getAvatar()) {
-                    avatarList.add(new AvatarModel(avatarData, avatarExtraDataProvider, data.getType()));
+                    avatarList.add(new AvatarModel(avatarData, gifAvatarExtraDataProvider, data.getType()));
                 }
             }
-
-            if (data.getType() == Type.GIF) {
-
-
-                if (data.getBackground() != null) { //从配置文件读背景
-                    BufferedImage sticker = new BackgroundModel(data.getBackground(), avatarList).getImage();
-                    for (short i = 0; i < avatarList.get(0).getPosLength(); i++) {
-                        stickerMap.put(i, sticker);
-                    }
-                }
-                InputStream inputStream = gifMaker.makeAvatarGIF(avatarList, textList, stickerMap, antialias);
-                return new Pair<>(inputStream, "gif");
-            }
-
             if (data.getType() == Type.IMG) {
-                BufferedImage sticker = stickerMap.get((short)0);
-                if (data.getBackground() != null)
-                    sticker = new BackgroundModel(data.getBackground(), avatarList).getImage();
+                BufferedImage sticker = stickerMap.get((short) 0);
                 assert sticker != null;
-                InputStream inputStream = imageMaker.makeImage(avatarList, textList, sticker, antialias);
+                InputStream inputStream = BaseImageMaker.makeImage(avatarList, textList, sticker, antialias);
                 return new Pair<>(inputStream, "png");
             }
-
         } catch (Exception ex) {
-            throw new PetpetException("解析 KeyData 出错");
+         return null;
         }
-
         return null;
     }
+    /**
+     根据自定义keyData生成petpet gif图片
+     */
+  public  Pair<InputStream, String> generateGIF(KeyData data,HashMap<Short, BufferedImage> stickerMap,
+                                                GifAvatarExtraDataProvider gifAvatarExtraDataProvider,
+                                                TextExtraData textExtraData,
+                                                List<TextData> additionTextDatas){
+
+      try {
+          ArrayList<TextModel> textList = new ArrayList<>();
+          // add from KeyData
+          if (!data.getText().isEmpty()) {
+              for (TextData textElement : data.getText()) {
+                  textList.add(new TextModel(textElement, textExtraData));
+              }
+          }
+          // add from params
+          if (additionTextDatas != null) {
+              for (TextData textElement : additionTextDatas) {
+                  textList.add(new TextModel(textElement, textExtraData));
+              }
+          }
+
+          ArrayList<AvatarModel> avatarList = new ArrayList<>();
+
+          if (!data.getAvatar().isEmpty()) {
+              for (AvatarData avatarData : data.getAvatar()) {
+                  avatarList.add(new AvatarModel(avatarData, gifAvatarExtraDataProvider, data.getType()));
+              }
+          }
+
+          if (data.getType() == Type.GIF) {
+
+              //TODO
+//                if (data.getBackground() != null) { //从配置文件读背景
+//                    BufferedImage sticker = new BackgroundModel(data.getBackground(), avatarList, textList).getImage();
+//                    for (short i = 0; i < avatarList.get(0).getPosLength(); i++) {
+//                        stickerMap.put(i, sticker);
+//                    }
+//                }
+              InputStream inputStream = BaseGifMaker.makeGIF(avatarList, textList, stickerMap, antialias);
+              return new Pair<>(inputStream, "gif");
+          }
+
+      } catch (Exception ex) {
+          throw new PetpetException("生成图片失败");
+      }
+      return null;
+
+    }
+
 }

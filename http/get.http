@@ -1,0 +1,12 @@
+GET http://localhost:2333/petpet/key/petpet
+Accept: application/json
+
+###
+GET http://localhost:2333/petpet/alias
+Accept: application/json
+
+###
+GET http://localhost:2333/petpet/keys
+Accept: application/json
+
+###

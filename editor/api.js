@@ -11,9 +11,7 @@ async function getKey(key){
 
  async function postBuildData(data) {
     return  await fetch(`${baseUrl}/editor/generate`, {
-
             method: "POST",
-
             body: data,
         })
 

@@ -44,12 +44,16 @@ public class BaseController {
         avatarMap.put("BOT",botAvatar);
         return avatarMap;
     }
-    protected static Function0<? extends BufferedImage> newCall(FileItem fileItem){
+    protected static Function0<? extends List<BufferedImage>> newCall(FileItem fileItem){
         return () -> {
+            List<BufferedImage> list=new ArrayList<>();
             if (fileItem.isInMemory()){
-                return ImageUtils.toBufferedImage(fileItem.getData());
+                list.add(ImageUtils.toBufferedImage(fileItem.getData()));
+            }else {
+                list.add(ImageUtils.toBufferedImage(fileItem.getFile()));
             }
-          return ImageUtils.toBufferedImage(fileItem.getFile());
+
+          return list;
         };
     }
 
@@ -78,10 +82,10 @@ public class BaseController {
         );
     }
 
-    protected AvatarExtraDataProvider getAvatarExtraDataFromFile(Request request, KeyData keyData) {
+    protected GifAvatarExtraDataProvider getAvatarExtraDataFromFile(Request request, KeyData keyData) {
         Map<String, Optional<FileItem>> avatarMap = getAvatarFile(request);
         this.checkAvatarFileParameter(keyData, avatarMap);
-        return  new AvatarExtraDataProvider(
+        return  new GifAvatarExtraDataProvider(
                 avatarMap.get("FROM").map(BaseController::newCall).orElse(null),
                 avatarMap.get("TO").map(BaseController::newCall).orElse(null),
                 avatarMap.get("GROUP").map(BaseController::newCall).orElse(null),

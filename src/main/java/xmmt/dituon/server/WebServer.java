@@ -17,7 +17,7 @@ import java.nio.file.StandardCopyOption;
 public class WebServer {
     public static final BasePetService petService = new BasePetService();
     public static final short port = 2333;
-     public static void main(String[] args) throws IOException {
+     public static void main(String[] args)  {
 
 
          Blade blade = Blade.create();

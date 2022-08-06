@@ -22,10 +22,12 @@ function buildData() {
     "avatar": [${avatarBuiltList}],
     "text": [${textBuiltList}]${extra}\n}`
 
-    $('textarea').slideDown().text(out)
+   return out
+}
+function showBuildData() {
+    $(".result").html(`<textarea>${buildData()}</textarea>`)
     $('#downloadConfig').slideDown()
 }
-
 $('#downloadConfig').click(() => {
     let blob = new Blob([$('textarea').text()], {
         type: 'text/plain;charset=utf-8'
