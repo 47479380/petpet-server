@@ -22,8 +22,9 @@ data class KeyData(
     val text: List<TextData>,
     val background: BackgroundData? = null,
     val alias: List<String>? = null,
-    val format: String? = "png",
-    val inRandomList: Boolean? = true
+    val format: String? = "png", //未实装
+    val inRandomList: Boolean? = true,
+    val hidden: Boolean? = false
 ) {
     companion object {
         @JvmStatic
@@ -91,6 +92,7 @@ data class AvatarData @JvmOverloads constructor(
     val antialias: Boolean? = false
 )
 
+@Deprecated("使用GifAvatarExtraDataProvider以保证对GIF格式的解析")
 data class AvatarExtraDataProvider(
     val fromAvatar: (() -> BufferedImage)? = null,
     val toAvatar: (() -> BufferedImage)? = null,
@@ -98,7 +100,14 @@ data class AvatarExtraDataProvider(
     val botAvatar: (() -> BufferedImage)? = null
 )
 
+data class GifAvatarExtraDataProvider(
+    val fromAvatar: (() -> List<BufferedImage>)? = null,
+    val toAvatar: (() -> List<BufferedImage>)? = null,
+    val groupAvatar: (() -> List<BufferedImage>)? = null,
+    val botAvatar: (() -> List<BufferedImage>)? = null
+)
+
 @Serializable
-data class BackgroundData @JvmOverloads constructor(
+data class BackgroundData constructor(
     val size: JsonArray
 )
