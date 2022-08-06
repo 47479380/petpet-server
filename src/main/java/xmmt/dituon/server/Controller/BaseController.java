@@ -1,4 +1,4 @@
-package xmmt.dituon.server.controller;
+package xmmt.dituon.server.Controller;
 
 import com.hellokaton.blade.mvc.http.ByteBody;
 import com.hellokaton.blade.mvc.http.Request;
@@ -7,16 +7,13 @@ import com.hellokaton.blade.mvc.multipart.FileItem;
 import kotlin.Pair;
 import kotlin.jvm.functions.Function0;
 import xmmt.dituon.server.Exception.PetpetException;
+import xmmt.dituon.server.Utils.ImageUtils;
 import xmmt.dituon.share.*;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.*;
 
 public class BaseController {
@@ -49,19 +46,13 @@ public class BaseController {
     }
     protected static Function0<? extends BufferedImage> newCall(FileItem fileItem){
         return () -> {
-          return toBufferedImage(fileItem);
+            if (fileItem.isInMemory()){
+                return ImageUtils.toBufferedImage(fileItem.getData());
+            }
+          return ImageUtils.toBufferedImage(fileItem.getFile());
         };
     }
-    protected static BufferedImage toBufferedImage(FileItem fileItem){
-        try {
-            if (fileItem.isInMemory()){
-                return  ImageIO.read(new ByteArrayInputStream(fileItem.getData()));
-            }
-            return ImageIO.read(fileItem.getFile());
-        } catch (IOException e) {
-            return null;
-        }
-    }
+
     protected void downloadImage(Response response,Pair<InputStream, String> pair, String key) throws IOException {
         InputStream inputStream = pair.getFirst();
         String second = pair.getSecond();

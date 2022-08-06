@@ -1,28 +1,19 @@
-package xmmt.dituon.server.controller;
+package xmmt.dituon.server.Controller;
 
 import com.hellokaton.blade.annotation.Path;
 import com.hellokaton.blade.annotation.request.*;
 import com.hellokaton.blade.annotation.route.GET;
 import com.hellokaton.blade.annotation.route.POST;
 import com.hellokaton.blade.ioc.annotation.Inject;
-import com.hellokaton.blade.mvc.http.ByteBody;
 import com.hellokaton.blade.mvc.http.Request;
 import com.hellokaton.blade.mvc.http.Response;
-import com.hellokaton.blade.mvc.multipart.FileItem;
+import com.hellokaton.blade.mvc.ui.RestResponse;
 import kotlin.Pair;
-import kotlin.jvm.functions.Function0;
 import xmmt.dituon.server.Exception.PetpetException;
 import xmmt.dituon.server.Service.PetpetService;
-import xmmt.dituon.server.model.ResponseCode;
-import xmmt.dituon.server.model.ResponseResult;
 import xmmt.dituon.share.*;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Path
@@ -74,8 +65,7 @@ public class PetpetController extends BaseController {
         KeyData keyData = petpetService.getDataMap().get(key);
         //        找不到key直接返回错误
         if (null == keyData) {
-            response.status(ResponseCode.ERROR.getCode());
-            response.json(ResponseResult.error("找不到key：" + key));
+            response.json(RestResponse.fail(key+"不存在"));
             return;
         }
         try {
@@ -88,9 +78,9 @@ public class PetpetController extends BaseController {
                 throw new  PetpetException("生成petpet失败");
             }
             this.downloadImage(response, pair, key);
-        } catch (PetpetException | IOException ignored) {
-            log.error(TAG, ignored.getMessage());
-            response.json(new ResponseResult<>(ResponseCode.SERVER_ERROR.getCode(), ignored.getMessage()));
+        } catch (Exception e) {
+            log.error(TAG, e.getMessage());
+            response.json(RestResponse.fail(e.getMessage()));
         }
 
     }
@@ -102,8 +92,7 @@ public class PetpetController extends BaseController {
         KeyData keyData = petpetService.getDataMap().get(key);
         //        找不到key直接返回错误
         if (null == keyData) {
-            response.status(ResponseCode.ERROR.getCode());
-            response.json(ResponseResult.error("找不到key：" + key));
+            response.json(RestResponse.fail(key+"不存在"));
             return;
         }
 
@@ -118,11 +107,10 @@ public class PetpetController extends BaseController {
                    throw new  PetpetException("生成petpet失败");
                }
                this.downloadImage(response, pair, key);
-           } catch (PetpetException | IOException ignored) {
-               log.error(TAG, ignored.getMessage());
-               response.json(new ResponseResult<>(ResponseCode.SERVER_ERROR.getCode(), ignored.getMessage()));
+           }catch (Exception e) {
+               log.error(TAG, e.getMessage());
+               response.json(RestResponse.fail(e.getMessage()));
            }
-
     }
 
     //  上传头像生成petpet
@@ -133,8 +121,7 @@ public class PetpetController extends BaseController {
         KeyData keyData = petpetService.getDataMap().get(key);
         //        找不到key直接返回错误
         if (null == keyData) {
-            response.status(ResponseCode.ERROR.getCode());
-            response.json(ResponseResult.error("找不到key：" + key));
+            response.json(RestResponse.fail(key+"不存在"));
             return;
         }
         try {
@@ -146,9 +133,9 @@ public class PetpetController extends BaseController {
                 throw new  PetpetException("生成petpet失败");
             }
             this.downloadImage(response, pair, key);
-        } catch (PetpetException | IOException ignored) {
-            log.error(TAG, ignored.getMessage());
-            response.json(new ResponseResult<>(ResponseCode.SERVER_ERROR.getCode(), ignored.getMessage()));
+        } catch (Exception e) {
+            log.error(TAG, e.getMessage());
+            response.json(RestResponse.fail(e.getMessage()));
         }
     }
 

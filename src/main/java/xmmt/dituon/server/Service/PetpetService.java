@@ -66,7 +66,7 @@ public class PetpetService extends BasePetService {
 
                 if (data.getBackground() != null) { //从配置文件读背景
                     BufferedImage sticker = new BackgroundModel(data.getBackground(), avatarList).getImage();
-                    for (short i = 0; i < avatarList.get(0).getPos().length; i++) {
+                    for (short i = 0; i < avatarList.get(0).getPosLength(); i++) {
                         stickerMap.put(i, sticker);
                     }
                 }
