@@ -1,4 +1,4 @@
-package xmmt.dituon.server.Controller;
+package xmmt.dituon.Server.Controller;
 
 import com.hellokaton.blade.annotation.Path;
 import com.hellokaton.blade.annotation.route.POST;
@@ -9,10 +9,10 @@ import com.hellokaton.blade.mvc.multipart.FileItem;
 import com.hellokaton.blade.mvc.ui.RestResponse;
 import kotlin.Pair;
 import kotlin.jvm.functions.Function0;
-import xmmt.dituon.server.Exception.PetpetException;
-import xmmt.dituon.server.Service.EditorService;
-import xmmt.dituon.server.Service.PetpetService;
-import xmmt.dituon.server.Utils.ImageUtils;
+import xmmt.dituon.Server.Exception.PetpetException;
+import xmmt.dituon.Server.Service.EditorService;
+import xmmt.dituon.Server.Service.PetpetService;
+import xmmt.dituon.Server.Utils.ImageUtils;
 import xmmt.dituon.share.*;
 
 import java.awt.image.BufferedImage;
@@ -27,7 +27,7 @@ public class EditorController extends BaseController {
     @Inject
     private EditorService editorService;
     //    编辑器文件上传
-    @POST("/editor/generate")
+    @POST("/static/editor/generate")
     public void generate(Request request, Response response) {
         Optional<String> data = request.form("data");
         if (data.isEmpty()) {

@@ -1,4 +1,4 @@
-package xmmt.dituon.server.Utils;
+package xmmt.dituon.Server.Utils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

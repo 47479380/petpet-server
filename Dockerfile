@@ -8,6 +8,9 @@ EXPOSE 2333
 WORKDIR /java
 
 ADD build/libs /java
+ADD data /java
+ADD docs /java
+ADD editor /java
 #5.设置时区
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo 'Asia/Shanghai' >/etc/timezone

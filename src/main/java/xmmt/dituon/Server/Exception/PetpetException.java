@@ -1,4 +1,4 @@
-package xmmt.dituon.server.Exception;
+package xmmt.dituon.Server.Exception;
 
 public class PetpetException extends RuntimeException {
 

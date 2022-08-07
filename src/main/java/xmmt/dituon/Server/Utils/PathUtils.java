@@ -1,4 +1,4 @@
-package xmmt.dituon.server.Utils;
+package xmmt.dituon.Server.Utils;
 
 import java.io.File;
 import java.net.URL;

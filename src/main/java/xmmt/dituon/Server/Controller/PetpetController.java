@@ -1,4 +1,4 @@
-package xmmt.dituon.server.Controller;
+package xmmt.dituon.Server.Controller;
 
 import com.hellokaton.blade.annotation.Path;
 import com.hellokaton.blade.annotation.request.*;
@@ -9,8 +9,8 @@ import com.hellokaton.blade.mvc.http.Request;
 import com.hellokaton.blade.mvc.http.Response;
 import com.hellokaton.blade.mvc.ui.RestResponse;
 import kotlin.Pair;
-import xmmt.dituon.server.Exception.PetpetException;
-import xmmt.dituon.server.Service.PetpetService;
+import xmmt.dituon.Server.Exception.PetpetException;
+import xmmt.dituon.Server.Service.PetpetService;
 import xmmt.dituon.share.*;
 
 import java.io.InputStream;
@@ -26,17 +26,17 @@ public class PetpetController extends BaseController {
     @Inject
     private PetpetService petpetService;
 
-    @GET("/")
-    public void index1(Response response) {
-
-        response.redirect("/docs/index.html");
-    }
-
-    @GET("/petpet")
-    public void index(Response response) {
-
-        response.redirect("/docs/index.html");
-    }
+//    @GET("/")
+//    public void index1(Response response) {
+//
+//        response.redirect("/docs/index.html");
+//    }
+//
+//    @GET("/petpet")
+//    public void index(Response response) {
+//
+//        response.redirect("/docs/index.html");
+//    }
 
     @GET("/petpet/keys")
     public void keys(Response response) {

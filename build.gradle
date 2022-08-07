@@ -63,7 +63,7 @@ jar {
     archiveFileName="petpet.jar"
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     manifest {
-        attributes 'Main-Class': 'xmmt.dituon.server.WebServer'
+        attributes 'Main-Class': 'xmmt.dituon.Server.WebServer'
     }
     from {
         (configurations.runtimeClasspath).collect {
@@ -72,14 +72,7 @@ jar {
     }
 
 }
-//复制data目录
-task copyDataDir(type: Copy) {
-    from new File(getProjectDir(),"data")
-    into new File(getBuildDir(),"libs\\data")
-    include '**/*'
-    exclude { details -> details.file.name.endsWith('.html') &&
-            details.file.text.contains('staging') }
-}
+
 test {
     filter {
         //exclude all tests from a package.

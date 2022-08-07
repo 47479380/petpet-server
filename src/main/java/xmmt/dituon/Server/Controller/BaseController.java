@@ -1,4 +1,4 @@
-package xmmt.dituon.server.Controller;
+package xmmt.dituon.Server.Controller;
 
 import com.hellokaton.blade.mvc.http.ByteBody;
 import com.hellokaton.blade.mvc.http.Request;
@@ -6,8 +6,8 @@ import com.hellokaton.blade.mvc.http.Response;
 import com.hellokaton.blade.mvc.multipart.FileItem;
 import kotlin.Pair;
 import kotlin.jvm.functions.Function0;
-import xmmt.dituon.server.Exception.PetpetException;
-import xmmt.dituon.server.Utils.ImageUtils;
+import xmmt.dituon.Server.Exception.PetpetException;
+import xmmt.dituon.Server.Utils.ImageUtils;
 import xmmt.dituon.share.*;
 
 import java.awt.image.BufferedImage;
